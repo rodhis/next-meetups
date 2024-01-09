@@ -25,17 +25,36 @@ const DUMMY_MEETUPS = [
     }
 ]
 
-function HomePage() {
-    const [loadedMeetups, setLoadedMeetups] = useState([])
-    
-    useEffect(() => {
-        //send http request and fetch data
-        setLoadedMeetups(DUMMY_MEETUPS)
-    }, [])
+function HomePage(props) {
 
     return (
-        <MeetupList meetups={loadedMeetups} />
+        <MeetupList meetups={props.meetups} />
     )
 }
+
+// export async function getServerSideProps(context) {
+//     //função reservada, para casos de server-side rendering
+//     const req = context.req
+//     const res = context.res
+
+//     return {
+//         props: {
+//             meetups: DUMMY_MEETUPS
+//         }
+//     }
+// }
+
+export async function getStaticProps(context) {
+    //função reservada, só funciona em componentes dentro da pasta pages
+
+    return {
+        props: { //sintaxe fixa
+            meetups: DUMMY_MEETUPS
+        },
+        revalidate: 10 //segundos para regenerar a aplicação
+    }
+    //para este caso de aplicação, é melhor usar getStaticProps
+}
+//usando esse método, não é mais necessário useEffect e useState, mas a interface fica estática (não vira uma SPA)
 
 export default HomePage
