@@ -1,17 +1,24 @@
 import { MongoClient, ObjectId } from 'mongodb'
 require('dotenv').config()
+import Head from 'next/head';
 
 import MeetupDetail from '../../components/meetups/MeetUpDetail'
 
+
 function MeetupDetails(props) {
     return (
+        <>
+        <Head>
+            <title>{props.meetupData.title}</title>
+            <meta name='descripton' content={props.meetupData.description} />
+        </Head>
         <MeetupDetail
             image={props.meetupData.image}
             title= {props.meetupData.title}
             address= {props.meetupData.address}
             description= {props.meetupData.description}
         />
- 
+        </>
     )
 }
 
@@ -30,7 +37,7 @@ export async function getStaticPaths() {
     client.close()
 
     return {
-        fallback: false,
+        fallback: true,
         paths: meetups.map((meetup) => (
             { params: { meetupId: meetup._id.toString(),
             }
