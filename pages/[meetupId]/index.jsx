@@ -1,3 +1,5 @@
+import { MongoClient } from 'mongodb'
+require('dotenv').config()
 
 import MeetupDetail from '../../components/meetups/MeetUpDetail'
 
@@ -14,19 +16,22 @@ function MeetupDetails() {
 }
 
 export async function getStaticPaths() {
+
+    const username = process.env.USERNAME;
+    const password = process.env.PASSWORD
+
+    const client = await MongoClient.connect(`mongodb+srv://${username}:${password}@next1.vsk9a5j.mongodb.net/?retryWrites=true&w=majority`)
+    const db = client.db()
+
+    const meetupsCollection = db.collection('meetups')
+
+    const meetups = await meetupsCollection.find({}, {_id: 1}).toArray()
     return {
         fallback: false,
-        paths: [
-            { params: {
-                meetupId: 'a1',
-            }},
-            { params: {
-                meetupId: 'a2',
-            }},
-            { params: {
-                meetupId: 'a3',
-            }},
-        ],
+        paths: meetups.map((meetup) => (
+            { params: { meetupId: meetup._id.toString(),
+            }
+    }))
     }
 }
 

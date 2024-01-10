@@ -1,29 +1,31 @@
-import { useEffect, useState } from 'react'
+import { MongoClient } from 'mongodb'
+require('dotenv').config()
+
 import MeetupList from '../components/meetups/MeetupList'
 
-const DUMMY_MEETUPS = [
-    {
-        id: 'a1',
-        title: "Primeiro Rolê",
-        image: "https://4.bp.blogspot.com/--ipiAvaSMQs/WNqtY1FcS8I/AAAAAAACFAs/Nd0cvmejnVUyMeeJlKjR8NzJyZu_M2o2QCLcB/s1600/13230110_1370193742995114_2334656076115372629_n.jpg",
-        address: "Praça Matriz de Abaíra",
-        description: "Para todos se conhecerem!"
-    },
-    {
-        id: 'a2',
-        title: "Domingo no Axé Manga",
-        image: "https://th.bing.com/th/id/OIP.Yk5-JFiGGa-J4uTeqdzpfAHaEK?rs=1&pid=ImgDetMain",
-        address: "Axé Manga, Pilões, Rio de Contas",
-        description: "Matar o calor e tomar aquela gelada!"
-    },
-    {
-        id: 'a3',
-        title: "Xande Lopes no Espetinho!",
-        image: "https://i.ytimg.com/vi/j8JA4iLkaA8/hq2.jpg?sqp=-oaymwEoCOADEOgC8quKqQMcGADwAQH4Ac4FgAKACooCDAgAEAEYDyBlKEcwDw==&rs=AOn4CLBgoaQdZaTbfAIESuUdLMisLWlj9g",
-        address: "Espetinho do Gusta, Praça Matriz, Abaíra",
-        description: "É de lei já!"
-    }
-]
+// const DUMMY_MEETUPS = [
+//     {
+//         id: 'a1',
+//         title: "Primeiro Rolê",
+//         image: "https://4.bp.blogspot.com/--ipiAvaSMQs/WNqtY1FcS8I/AAAAAAACFAs/Nd0cvmejnVUyMeeJlKjR8NzJyZu_M2o2QCLcB/s1600/13230110_1370193742995114_2334656076115372629_n.jpg",
+//         address: "Praça Matriz de Abaíra",
+//         description: "Para todos se conhecerem!"
+//     },
+//     {
+//         id: 'a2',
+//         title: "Domingo no Axé Manga",
+//         image: "https://th.bing.com/th/id/OIP.Yk5-JFiGGa-J4uTeqdzpfAHaEK?rs=1&pid=ImgDetMain",
+//         address: "Axé Manga, Pilões, Rio de Contas",
+//         description: "Matar o calor e tomar aquela gelada!"
+//     },
+//     {
+//         id: 'a3',
+//         title: "Xande Lopes no Espetinho!",
+//         image: "https://i.ytimg.com/vi/j8JA4iLkaA8/hq2.jpg?sqp=-oaymwEoCOADEOgC8quKqQMcGADwAQH4Ac4FgAKACooCDAgAEAEYDyBlKEcwDw==&rs=AOn4CLBgoaQdZaTbfAIESuUdLMisLWlj9g",
+//         address: "Espetinho do Gusta, Praça Matriz, Abaíra",
+//         description: "É de lei já!"
+//     }
+// ]
 
 function HomePage(props) {
 
@@ -46,10 +48,27 @@ function HomePage(props) {
 
 export async function getStaticProps(context) {
     //função reservada, só funciona em componentes dentro da pasta pages
+    const username = process.env.USERNAME;
+    const password = process.env.PASSWORD
+
+    const client = await MongoClient.connect(`mongodb+srv://${username}:${password}@next1.vsk9a5j.mongodb.net/?retryWrites=true&w=majority`)
+    const db = client.db()
+
+    const meetupsCollection = db.collection('meetups')
+
+     const meetups = await meetupsCollection.find().toArray()
+
+     client.close()
 
     return {
         props: { //sintaxe fixa
-            meetups: DUMMY_MEETUPS
+            meetups: meetups.map(meetup => ({
+                title: meetup.title,
+                address: meetup.address,
+                image: meetup.image,
+                description: meetup.description,
+                id: meetup._id.toString()
+            }))
         },
         revalidate: 10 //segundos para regenerar a aplicação
     }
