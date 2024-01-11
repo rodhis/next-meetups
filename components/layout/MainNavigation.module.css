@@ -37,3 +37,10 @@
 .header a.active {
   color: white;
 }
+
+
+@media (max-width: 480px) {
+  .logo, .header a {
+    font-size: 3.5vw;
+  }
+}
