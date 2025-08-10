@@ -1,47 +1,44 @@
 import { MongoClient, ObjectId } from 'mongodb'
 require('dotenv').config()
-import Head from 'next/head';
+import Head from 'next/head'
 
 import MeetupDetail from '../../components/meetups/MeetUpDetail'
-
 
 function MeetupDetails(props) {
     return (
         <>
-        <Head>
-            <title>{props.meetupData.title}</title>
-            <meta name='descripton' content={props.meetupData.description} />
-        </Head>
-        <MeetupDetail
-            image={props.meetupData.image}
-            title= {props.meetupData.title}
-            address= {props.meetupData.address}
-            description= {props.meetupData.description}
-        />
+            <Head>
+                <title>{props.meetupData.title}</title>
+                <meta name="descripton" content={props.meetupData.description} />
+            </Head>
+            <MeetupDetail
+                image={props.meetupData.image}
+                title={props.meetupData.title}
+                address={props.meetupData.address}
+                description={props.meetupData.description}
+            />
         </>
     )
 }
 
 export async function getStaticPaths() {
+    const uri = process.env.MONGODB_URI
+    if (!uri) {
+        throw new Error('MONGODB_URI não está definida.')
+    }
 
-    const username = process.env.USERNAME;
-    const password = process.env.PASSWORD
-
-    const client = await MongoClient.connect(`mongodb+srv://${username}:${password}@next1.vsk9a5j.mongodb.net/?retryWrites=true&w=majority`)
+    const client = await MongoClient.connect(uri)
     const db = client.db()
 
     const meetupsCollection = db.collection('meetups')
 
-    const meetups = await meetupsCollection.find({}, {_id: 1}).toArray()
+    const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray()
 
     client.close()
 
     return {
         fallback: 'blocking',
-        paths: meetups.map((meetup) => (
-            { params: { meetupId: meetup._id.toString(),
-            }
-    }))
+        paths: meetups.map((meetup) => ({ params: { meetupId: meetup._id.toString() } })),
     }
 }
 
@@ -50,16 +47,17 @@ export async function getStaticProps(context) {
 
     const meetupId = context.params.meetupId
 
-    const username = process.env.USERNAME;
+    const username = process.env.USERNAME
     const password = process.env.PASSWORD
 
-    const client = await MongoClient.connect(`mongodb+srv://${username}:${password}@next1.vsk9a5j.mongodb.net/?retryWrites=true&w=majority`)
+    const client = await MongoClient.connect(
+        `mongodb+srv://${username}:${password}@next1.vsk9a5j.mongodb.net/?retryWrites=true&w=majority`
+    )
     const db = client.db()
 
     const meetupsCollection = db.collection('meetups')
 
-    const selectedMeetup = await meetupsCollection.findOne({_id: new ObjectId(meetupId)
-        ,})
+    const selectedMeetup = await meetupsCollection.findOne({ _id: new ObjectId(meetupId) })
 
     client.close()
 
@@ -70,7 +68,7 @@ export async function getStaticProps(context) {
                 title: selectedMeetup.title,
                 address: selectedMeetup.address,
                 image: selectedMeetup.image,
-                description: selectedMeetup.description
+                description: selectedMeetup.description,
             },
         },
     }

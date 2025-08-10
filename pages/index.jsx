@@ -5,14 +5,13 @@ require('dotenv').config()
 import MeetupList from '../components/meetups/MeetupList'
 
 function HomePage(props) {
-
     return (
         <>
-        <Head>
-            <title>React Meetups</title>
-            <meta name='description' content='Browse or create your own meetups!'/>
-        </Head>
-        <MeetupList meetups={props.meetups} />
+            <Head>
+                <title>React Meetups</title>
+                <meta name="description" content="Browse or create your own meetups!" />
+            </Head>
+            <MeetupList meetups={props.meetups} />
         </>
     )
 }
@@ -31,29 +30,32 @@ function HomePage(props) {
 
 export async function getStaticProps(context) {
     //função reservada, só funciona em componentes dentro da pasta pages
-    const username = process.env.USERNAME;
-    const password = process.env.PASSWORD
+    const uri = process.env.MONGODB_URI
+    if (!uri) {
+        throw new Error('MONGODB_URI não está definida.')
+    }
 
-    const client = await MongoClient.connect(`mongodb+srv://${username}:${password}@next1.vsk9a5j.mongodb.net/?retryWrites=true&w=majority`)
+    const client = await MongoClient.connect(uri)
     const db = client.db()
 
     const meetupsCollection = db.collection('meetups')
 
-     const meetups = await meetupsCollection.find().toArray()
+    const meetups = await meetupsCollection.find().toArray()
 
-     client.close()
+    client.close()
 
     return {
-        props: { //sintaxe fixa
-            meetups: meetups.map(meetup => ({
+        props: {
+            //sintaxe fixa
+            meetups: meetups.map((meetup) => ({
                 title: meetup.title,
                 address: meetup.address,
                 image: meetup.image,
                 description: meetup.description,
-                id: meetup._id.toString()
-            }))
+                id: meetup._id.toString(),
+            })),
         },
-        revalidate: 10 //segundos para regenerar a aplicação
+        revalidate: 10, //segundos para regenerar a aplicação
     }
     //para este caso de aplicação, é melhor usar getStaticProps
 }
