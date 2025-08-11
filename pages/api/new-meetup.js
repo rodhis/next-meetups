@@ -1,19 +1,12 @@
-import { MongoClient } from 'mongodb'
+import { connectToDatabase } from '../../lib/mongodb'
 
 // rota /api/new-meetup
 
 async function handler(req, res) {
-    const uri = process.env.MONGODB_URI
-
-    if (!uri) {
-        throw new Error('MONGODB_URI não está definida.')
-    }
-
     if (req.method === 'POST') {
         const data = req.body
 
-        const client = await MongoClient.connect(uri)
-        const db = client.db()
+        const { client, db } = await connectToDatabase()
 
         const meetupsCollection = db.collection('meetups')
 

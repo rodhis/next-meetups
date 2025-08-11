@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { MongoClient } from 'mongodb'
+import { connectToDatabase } from '../lib/mongodb'
 
 import MeetupList from '../components/meetups/MeetupList'
 
@@ -29,13 +29,7 @@ function HomePage(props) {
 
 export async function getStaticProps(context) {
     //função reservada, só funciona em componentes dentro da pasta pages
-    const uri = process.env.MONGODB_URI
-    if (!uri) {
-        throw new Error('MONGODB_URI não está definida.')
-    }
-
-    const client = await MongoClient.connect(uri)
-    const db = client.db()
+    const { client, db } = await connectToDatabase()
 
     const meetupsCollection = db.collection('meetups')
 

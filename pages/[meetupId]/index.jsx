@@ -1,4 +1,5 @@
-import { MongoClient, ObjectId } from 'mongodb'
+import { ObjectId } from 'mongodb'
+import { connectToDatabase } from '../../lib/mongodb'
 import Head from 'next/head'
 
 import MeetupDetail from '../../components/meetups/MeetUpDetail'
@@ -21,13 +22,7 @@ function MeetupDetails(props) {
 }
 
 export async function getStaticPaths() {
-    const uri = process.env.MONGODB_URI
-    if (!uri) {
-        throw new Error('MONGODB_URI não está definida.')
-    }
-
-    const client = await MongoClient.connect(uri)
-    const db = client.db()
+    const { client, db } = await connectToDatabase()
 
     const meetupsCollection = db.collection('meetups')
 
@@ -46,13 +41,7 @@ export async function getStaticProps(context) {
 
     const meetupId = context.params.meetupId
 
-    const uri = process.env.MONGODB_URI
-    if (!uri) {
-        throw new Error('MONGODB_URI não está definida.')
-    }
-
-    const client = await MongoClient.connect(uri)
-    const db = client.db()
+    const { client, db } = await connectToDatabase()
 
     const meetupsCollection = db.collection('meetups')
 
