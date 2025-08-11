@@ -1,6 +1,5 @@
 import Head from 'next/head'
 import { MongoClient } from 'mongodb'
-require('dotenv').config()
 
 import MeetupList from '../components/meetups/MeetupList'
 

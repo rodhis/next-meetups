@@ -1,5 +1,4 @@
 import { MongoClient } from 'mongodb'
-require('dotenv').config()
 
 // rota /api/new-meetup
 
